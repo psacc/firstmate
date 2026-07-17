@@ -43,6 +43,9 @@ It never tears down a task, merges a PR, dispatches new work, or mutates any tas
      If today's file already exists, delete it first, then create a new file from scratch.
    - The chat response is the concise four-section digest defined by the contract below: materially shorter than the report file, complete as a current snapshot, internally consistent with the file, and linked to that file for the full picture.
    - For a richer review surface, optionally offer a Lavish board with `lavish-axi` when the report has enough structure to deserve one, but the markdown file is the required artifact and the four-section chat digest is the required minimum.
+     Arm any board's feedback as a watcher check with `bin/fm-lavish-check.sh <task-id> <board-file>` rather than a bare `lavish-axi poll`, so the watcher re-arms the poll every sweep and queued feedback drains on arm.
+     Never treat a poll return with empty `prompts` as the captain's feedback, because a browser layout-warning returns an armed poll early with no prompts.
+     Never arm two polls on one board file, because concurrent drains race and can duplicate or drop a send.
 
 ## Chat-response contract
 
