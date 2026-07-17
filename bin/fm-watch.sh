@@ -20,7 +20,10 @@
 #                          line, since the crew's own log gets no new entry once
 #                          firstmate hands it to a no-mistakes validation. A declared
 #                          external-wait pause is absorbed instead with its own long
-#                          re-surface cadence, never as a wedge. Only when neither
+#                          re-surface cadence, never as a wedge; a paused crew whose
+#                          authoritative state has since reached done/parked surfaces
+#                          once, then re-checks on that same long cadence instead of
+#                          re-surfacing every poll. Only when neither
 #                          absorb class applies does the log's last line decide:
 #                          terminal (captain-relevant) or non-terminal (no verb),
 #                          both surfaced at once. A provably-working stale past the
@@ -957,7 +960,19 @@ EOF
                          printf '%s' "$h" > "$sf"
                          wedge_timer_check "$w" "$ssf" "non-terminal stale (provably working after a declared pause)" "$ewf"
                          triage_log "absorbed non-terminal stale (provably working): $w" ;;
-                *)       surface_nonterminal_stale "$w" "$h" ;;
+                *)       # No working/paused evidence, and this hash was already
+                         # surfaced once (first-sight arm above). A crew whose
+                         # authoritative state is terminal (done - e.g. a PR raised and
+                         # monitoring for merge/close - or parked at a gate) is awaiting
+                         # the captain, not wedged: re-check it on the long pause cadence
+                         # instead of re-surfacing every poll. A genuinely stopped or
+                         # unknown crew (no terminal confirmation) keeps surfacing.
+                         if crew_reached_terminal "$task"; then
+                           date +%s > "$STATE/.paused-rechecked-$key"
+                           handle_paused_stale "$w" "$task" "$h"
+                         else
+                           surface_nonterminal_stale "$w" "$h"
+                         fi ;;
               esac
             else
               wedge_timer_check "$w" "$ssf" "non-terminal stale" "$ewf"

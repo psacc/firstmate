@@ -14,6 +14,7 @@ Repeated provably-working stale escalations on the same unchanged pane add an es
 Those actionable wakes are written to a durable local queue (`state/.wake-queue`) before detector state advances, so a missed process exit can be recovered by draining the queue.
 No-verb wakes, such as `working:` notes and bare turn-ended signals, are benign only when `bin/fm-crew-state.sh` reports positive evidence that the crew is still working: an actively running no-mistakes step for that crew's branch or a backend busy signature.
 A crew that declares `paused:` for a known external wait is separately absorbed while idle and re-surfaced only on the longer pause cadence, rather than being treated as a possible wedge.
+A paused-declared crew whose run then finishes surfaces its stale pane once; when the authoritative current state confirms a terminal outcome - done (e.g. a PR raised, monitoring for merge/close) or parked at a gate - later polls re-check it on that same long pause cadence instead of re-surfacing every poll, with the current-state read itself throttled to first sight per `FM_STALE_ESCALATE_SECS` window.
 Its initial normal-mode status signal still surfaces through the no-verb path, while away mode self-handles that routine signal and owns the later recheck.
 Fresh stale panes use the same current-state read before trusting the status log, so an active run or busy pane outranks an old captain-relevant status-log line left behind before validation.
 No-change heartbeats are also benign.
