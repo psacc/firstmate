@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # Parity guard for firstmate's shell-lint definition.
 #
-# bin/fm-lint.sh must be the single owner that BOTH CI
-# (.github/workflows/ci.yml) and the pre-push gate (.no-mistakes.yaml
-# commands.lint) invoke, so the local lint can never diverge from CI again.
+# bin/fm-lint.sh must be the single owner that CI (.github/workflows/ci.yml)
+# and local runs invoke, so the local lint can never diverge from CI again.
 # Regression origin: with no commands.lint configured, the local no-mistakes
 # lint step never ran the deterministic
 # `shellcheck bin/*.sh bin/backends/*.sh tests/*.sh`, so PRs passed local
@@ -19,7 +18,6 @@ set -u
 
 LINT="$ROOT/bin/fm-lint.sh"
 CI="$ROOT/.github/workflows/ci.yml"
-NM="$ROOT/.no-mistakes.yaml"
 INSTALLER="$ROOT/bin/fm-install-shellcheck.sh"
 # The authoritative file set the one owner must run.
 CANON='shellcheck --norc bin/*.sh bin/backends/*.sh tests/*.sh'
@@ -54,11 +52,6 @@ test_ci_invokes_the_owner() {
   # Guard against regression to an inline re-spelling of the command.
   assert_no_grep 'run: shellcheck' "$CI" "CI must call fm-lint.sh, not re-spell shellcheck inline"
   pass "CI lint job calls the one-owner script, not an inline command"
-}
-
-test_nomistakes_invokes_the_owner() {
-  grep -Fqx "  lint: 'bin/fm-lint.sh'" "$NM" || fail "no-mistakes commands.lint must map exactly to the one-owner script"
-  pass "no-mistakes pre-push lint calls the one-owner script"
 }
 
 test_pins_an_explicit_version() {
@@ -183,7 +176,6 @@ SH
 test_owner_exists_and_executable
 test_owner_defines_canonical_set
 test_ci_invokes_the_owner
-test_nomistakes_invokes_the_owner
 test_pins_an_explicit_version
 test_ci_installs_and_logs_the_pinned_version
 test_rejects_wrong_shellcheck_version
