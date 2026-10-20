@@ -8,11 +8,7 @@
 # script with no arguments.
 #   - CI:       .github/workflows/ci.yml installs the version this script prints
 #               via `--required-version`, then runs `bin/fm-lint.sh`.
-#   - Pre-push: .no-mistakes.yaml `commands.lint` runs `bin/fm-lint.sh`, so the
-#               no-mistakes gate runs the SAME shellcheck as CI. Without a
-#               configured commands.lint, that gate step never ran this
-#               deterministic shellcheck, so info-level findings were not
-#               surfaced locally before CI rejected them.
+#   - Local:    run `bin/fm-lint.sh` before pushing; it is the SAME shellcheck as CI.
 #
 # Version parity: CI's ShellCheck used to float with the runner image, and
 # ShellCheck retired SC2015 in 0.11.0, so an older CI ShellCheck rejected an
